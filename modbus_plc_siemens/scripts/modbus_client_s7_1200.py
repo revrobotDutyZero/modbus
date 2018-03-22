@@ -52,6 +52,7 @@ if __name__=="__main__":
     port = 502
     if rospy.has_param("~ip"):
         host =  rospy.get_param("~ip")
+        rospy.loginfo("Host: %s",host)
     else:
         rospy.loginfo("For not using the default IP %s, add an arg e.g.: '_ip:=\"192.168.0.198\"'",host)
     if rospy.has_param("~port"):
