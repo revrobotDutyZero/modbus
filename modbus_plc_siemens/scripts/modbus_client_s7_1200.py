@@ -38,8 +38,9 @@
 
 import rospy
 from modbus_plc_siemens.s7_modbus_client import S7ModbusClient 
-from std_msgs.msg import Int32MultiArray as HoldingRegister
-
+from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import String
+ 
 if __name__=="__main__":
     rospy.init_node("modbus_client_s7_1200")
     rospy.loginfo("""
@@ -66,49 +67,57 @@ if __name__=="__main__":
     #################        
     # Example 1 
     # Set single registers using the python interface - yeah knight rider is coming!
-    outputs = xrange(8,14)
-    outputs2 = range(13,7,-1)
-    #inputs = range(1,9) 
-    
-    # for i in xrange(5):
-    #     for output in outputs:    
-    #         modclient.setOutput(output,1,0.3)
-    #         rospy.sleep(0.1)
-    #     for output in outputs2:            
-    #         modclient.setOutput(output,1,0.3)
-    #         rospy.sleep(0.1)
-    # rospy.sleep(0.3)
+    outputs = xrange(8,12)
+    outputs2 = range(11,7,-1)
+    rospy.loginfo("Example1: Sending value to single register")
+    rospy.loginfo("On/Off LED one by one")
+    for i in xrange(3):
+        for output in outputs:   
+            modclient.setOutput(output,1,0.15)
+            rospy.sleep(0.15)
+        for output in outputs2:  
+            modclient.setOutput(output,1,0.15)
+            rospy.sleep(0.15)
     #################
-      
+
+
     #################
     # Example 2
     # Create a listener that show us a message if anything on the readable modbus registers change
-    rospy.loginfo("All done. Listening to inputs... Terminate by Ctrl+c")
+    rospy.loginfo("Example2: Start to listening to inputs...")
     def showUpdatedRegisters(msg):
         rospy.loginfo("Modbus server registers have been updated: %s",str(msg.data))
-    sub = rospy.Subscriber("modbus_wrapper/input",HoldingRegister,showUpdatedRegisters,queue_size=500)
-    rospy.spin()
+    sub = rospy.Subscriber("modbus_wrapper/input",Int32MultiArray,showUpdatedRegisters,queue_size=500)
     #################
     
-     #################
+
+    #################
     # Example 3
     # writing to modbus registers using a standard ros publisher
-    
-    pub = rospy.Publisher("modbus_wrapper/output",HoldingRegister,queue_size=500)
-    output = HoldingRegister()
-    output.data = [1 for x in xrange(0,6)]
-    output2 = HoldingRegister()
-    output2.data = [0 for x in xrange(0,6)]
-     
-    rospy.loginfo("Sending arrays to the modbus server")
-    for i in xrange(5):
+    pub = rospy.Publisher("modbus_wrapper/output",Int32MultiArray,queue_size=500)
+    output = Int32MultiArray()
+    output2 = Int32MultiArray()
+    rospy.loginfo("Example3: Sending arrays to the modbus server")
+    for i in xrange(4):
+        rospy.loginfo("The first %d LED will flash for 1 second...",i+1)
         rospy.sleep(1)
+        output.data = [1 for x in xrange(0,i+1)]
         pub.publish(output)
         rospy.sleep(1)
+        output2.data = [0 for x in xrange(0,i+1)]
+        pub.publish(output2)
+
+    rospy.loginfo("Flash all LED every 0.5 second...")
+    for i in xrange(3):
+        rospy.sleep(0.5)
+        pub.publish(output)
+        rospy.sleep(0.5)
         pub.publish(output2)
     #################
     
     rospy.loginfo("Outputs tests all done, just listening to inputs. Stop listening by pressing Ctrl+c")
+    rospy.spin()
     # Stops the listener on the modbus
     modclient.stopListening()
+
     
