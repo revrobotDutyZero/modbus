@@ -11,5 +11,5 @@ This stack was tested by interfacing with a Siemens PLC
 * The package `modbus_plc_siemens` inherits the modbus client base class and changes the register size.
 
 Install all dependencies from packages or from sources:
-	* sudo apt-get install python-pymodbus
-	* sudo apt-get install python-pyasn1 python-twisted-conch
+* sudo apt-get install python-pymodbus
+* sudo apt-get install python-pyasn1 python-twisted-conch
